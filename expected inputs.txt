@@ -1,0 +1,46 @@
+
+class Alien(ast.NodeVisitor):
+    def visit_node(self, node):
+        print(type(node))
+        gg = self.generic_visit(node)
+        return gg
+
+
+
+
+
+            if item in PLDLIST:
+                child_list.append((count, '.'.join([parent_full_name, (item+'['+str(idx)+']')] )))
+            else:
+                child_list.append((count, '.'.join([parent_full_name, item] )))				
+				
+
+>>> tree.body[0].name
+'evaluate'
+>>> tree.body[0].args.args[0]
+<_ast.arg object at 0x031181F0>
+
+
+>>> type(tree)
+<class '_ast.Module'>
+
+>>> type(tree.body)
+<class 'list'>
+
+>>> type(tree.body[0])
+<class '_ast.FunctionDef'>
+
+>>> type(tree.body[0].args)
+<class '_ast.arguments'>
+
+>>> type(tree.body[0].args.args)
+<class 'list'>
+
+>>> type(tree.body[0].args.args[0])
+<class '_ast.arg'>
+
+>>> type(tree.body[0].args.args[0].arg)
+<class 'str'>
+
+>>> (tree.body[0].args.args[0].arg)
+'x'
