@@ -48,7 +48,7 @@ PLD = {
     'IsNot' : [],
     'In' : [],
     'NotIn' : [],
-    'Call' : ['func', 'args', 'keywords', 'starargs', 'kwargs'],
+    'Call' : ['func', 'args', 'keywords'],  #removed ,'starargs', 'kwargs' due to : AttributeError: 'Call' object has no attribute 'starargs'
     'keyword' : ['arg', 'value'],
     'IfExp' : ['test','body','orelse'], # all are Name nodes
     'Attribute' : ['value','attr','ctx'],
@@ -58,12 +58,12 @@ PLD = {
     'ExtSlice' : ['dims'],
     'ListComp' : ['elt','generators'],
     'SetComp' : ['elt','generators'],
-    'GeneratorComp' : ['elt','generators'],
+    'GeneratorExp' : ['elt','generators'],
     'DictComp' : ['key','value','generators'],
     'comprehension' : ['target', 'iter', 'ifs'],
     'Assign' : ['targets', 'value'],
     'AugAssign' : ['target', 'op', 'value'],
-    'Print' : ['dest', 'values', 'nl'],
+    #'Print' : ['dest', 'values', 'nl'],
     'Raise' : ['exc', 'cause'],
     'Assert' : ['test', 'msg'],
     'Delete' : ['targets'],
@@ -76,9 +76,9 @@ PLD = {
     'While' : ['test', 'body', 'orelse'],
     'Break' : [],
     'Continue' : [],
-    'Try' : ['body', 'handlers', 'orelse', 'finalbody'],
-    'TryFinally' : ['body', 'finalbody'],
-    'TryExcept' : ['body', 'handlers', 'orelse'],
+    'Try' : ['body', 'handlers', 'orelse', 'finalbody'], 
+    #'TryFinally' : ['body', 'finalbody'],              #have been removed
+    #'TryExcept' : ['body', 'handlers', 'orelse'],      #have been removed
     'ExceptHandler' : ['type', 'name', 'body'],
     'With' : ['items', 'body'],
     'withitem' : ['context_expr', 'optional_vars'],
@@ -90,12 +90,14 @@ PLD = {
     'Yield' : ['value'],
     'YieldFrom' : ['value'],
     'Global' : ['names'],
-    'NonLocal' : ['names'],
-    'ClassDef' :['name', 'bases', 'keywords', 'starargs', 'kwargs', 'body', 'decorator_list'],
+    'Nonlocal' : ['names'],
+    'ClassDef' :['name', 'bases', 'keywords', 'body', 'decorator_list'],
     'AsyncFunctionDef' : ['name', 'args', 'body', 'decorator_list', 'returns'],
     'Await' : ['value'],
     'AsyncFor' : ['target', 'iter', 'body', 'orelse'],
-    'AsyncWith' : ['items', 'body']
+    'AsyncWith' : ['items', 'body'],
+    'Expression' : ['body'],
+    'Suite' : ['body'],
 }
 
 PLDLIST = [     'body',

@@ -19,9 +19,13 @@ class SourceTree(object):
         self.name = 'tree'
         self.parent_array = {}
         self.child_array = {}
+        self.depth_dict = {0: 1}
+        self.nodes_at_a_depth = {}
+        self.nodevals = []
         self.end_list = []
         self.count = 0
         self.queue = [(self.count, self.name)]
+        self.function_defs = {}
 
     def add_to_endlist(self, item):
 
@@ -62,21 +66,26 @@ class SourceTree(object):
         else:
             parent = eval('type(self.{0})'.format(parent_full_name))
             parent_value = str(parent)
-            parent_value2 = (parent_value)[13:-2] if parent_value.startswith("<class '_ast.") else parent_value[
+
+            # hackey extraction of type name from a node, but they don't have names - need alternative
+            parent_val = (parent_value)[13:-2] if parent_value.startswith("<class '_ast.") else parent_value[
                                                                                                        8:-2]
-            if parent_value2 in PLD:
-                sub_list = PLD[parent_value2]
+            if parent_val in PLD:
+                sub_list = PLD[parent_val]
                 for unit in sub_list:
                     child_list.append('.'.join([parent_full_name, unit]))
             else:
-                print("'",parent_value2, "' is not in the PLD dictionary ")
+                print("'",parent_val, "' is not in the PLD dictionary ")
                 print("child_list returning for '{0}' analysis = {1}".format(parent_full_name, child_list))
         return child_list
 
+
+
+
     def print_out(self):
         for row in sorted(self.end_list):
-            rowl = len(str(row[1]))
-            print(row[0], ' ' * (60 - rowl), row[1], ' ', eval('self.'+row[1]))
+            rowlen = len(str(row[1]))
+            print(row[0], ' ' * (60 - rowlen), row[1], ' ', eval('self.'+row[1]))
 
     def mainrun(self):
         while len(self.queue) > 0:
@@ -102,45 +111,56 @@ class SourceTree(object):
         print('The Parent reference dictionary contains :',self.parent_array)
         print('The Children reference dictionary contains :',self.child_array)
         self.print_out()
+        self.height()
+        self.reverse_height()
+        self.get_function_defs()
+        self.nodeval()
         return self.end_list, self.child_array, self.parent_array
 
-
-class Depth(object):
-    def __init__(self, end_list, carray, parray):
-        self.parray = parray
-        self.carray = carray
-        self.depth_dict= { 0 : 1 }
-        self.clen = len(end_list)
 
     def get_depth(self, item):
         if item in self.depth_dict.keys():
             self.depth = self.depth_dict[item]
         else:
-            self.depth = 1 + self.get_depth(self.parray[item])
+            self.depth = 1 + self.get_depth(self.parent_array[item])
             self.depth_dict[item] = self.depth
         return self.depth
 
-    def run(self):
-        for item in self.parray:
+    def height(self):
+        for item in self.parent_array:
             self.get_depth(item)
         print(self.depth_dict)
         return self.depth_dict
 
+    def reverse_height(self):
+        for key, value in self.depth_dict.items():
+            self.nodes_at_a_depth.setdefault(value, []).append(key)
+        self.layer_widths = [(key, len(value)) for key, value in self.nodes_at_a_depth.items()]
+
+    def nodeval(self):
+        for item in self.end_list:
+            num, valstr = item
+            valtype = eval('str(type((self.{0})))'.format(valstr))
+            carn = self.child_array[num] if num in self.child_array.keys() else []
+            self.nodevals.append((num, carn, valstr, valtype))
+            print((num, carn, valstr, valtype))
+
+    def get_function_defs(self):
+        pass
+        # this function is to gather the node elements that are FunctionDef in type and all of their child nodes
+        # each entry in the dictionary is for a separate FunctionDef
+        
+
+
 
 def main():
     structure = SourceTree()
-    endl, car, par = structure.mainrun()
-    depths  = Depth(endl,car,par)
-    node_depths = depths.run()
-    nodes_at_depth = {}
-    for key,value in node_depths.items():
-        print('node depths = ',value, key)
-        nodes_at_depth.setdefault(value, []).append(key)
+    end_list, car, par = structure.mainrun()
+    print('max width is {0} node columns, with {1} rows'.format(max([val[1] for val in structure.layer_widths]), len(structure.layer_widths)))
+    print(structure.nodevals)
 
-    print('nodes at a depth', nodes_at_depth)
-    layer_widths = [(key,len(value)) for key,value in nodes_at_depth.items()]
-    print(layer_widths)
-    print('max width is {0} node columns, with {1} rows'.format(max([val[1] for val in layer_widths]), len(layer_widths)))
+
+
 
 
 

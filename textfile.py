@@ -1,7 +1,7 @@
 text = """def evaluate(x):
     x = 21
     if x >= 10 and x <= 20:
-        x = x + 5
+        x = x + 5.5
     else:
         x = x * 6
     if x > 25 :
@@ -9,6 +9,9 @@ text = """def evaluate(x):
     else:
         y = 3 * x + 2
     return y
+
+def rrr(a,b):
+    print('hello')
 """
 
 
