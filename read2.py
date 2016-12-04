@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 # common = { 'col_offset', 'lineno'}
 # Python Language Dictionary = PLD refers to Python version - 3.5.2
 from PLD2 import PLD
-import collections
+import pickle
 
 def add_to_list(base, sep, bits):
     return [sep.join([base, bit]) for bit in bits]
@@ -142,14 +142,14 @@ class SourceTree(object):
             num, valstr = item
             valtype = eval('str(type((self.{0})))'.format(valstr))
             carn = self.child_array[num] if num in self.child_array.keys() else []
-            self.nodevals.append((num, carn, valstr, valtype))
-            print((num, carn, valstr, valtype))
+            self.nodevals.append((num, carn, valstr, valtype,  eval('self.'+item[1])))
+            print((num, carn, valstr, valtype,  eval('self.'+item[1])))
 
     def get_function_defs(self):
         pass
         # this function is to gather the node elements that are FunctionDef in type and all of their child nodes
         # each entry in the dictionary is for a separate FunctionDef
-        
+
 
 
 
@@ -157,11 +157,10 @@ def main():
     structure = SourceTree()
     end_list, car, par = structure.mainrun()
     print('max width is {0} node columns, with {1} rows'.format(max([val[1] for val in structure.layer_widths]), len(structure.layer_widths)))
-    print(structure.nodevals)
+    print('structure.nodevals=',structure.nodevals)
 
-
-
-
+    with open('filename.pickle', 'wb') as file_handle:
+        pickle.dump(structure.nodevals , file_handle)
 
 
 if __name__=='__main__':
