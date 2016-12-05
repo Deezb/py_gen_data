@@ -5,7 +5,6 @@ from PLD2 import PLD
 from pprint import pprint as pp
 import pickle
 
-
 def add_to_list(base, sep, bits):
     return [sep.join([base, bit]) for bit in bits]
 
@@ -109,16 +108,16 @@ class SourceTree(object):
             print('end_list currently holds : ', self.end_list)
             print('Node count is at ', self.count)
         print('end result = ', self.end_list)
-        print('The Parent reference dictionary contains :',self.parent_array)
-        print('The Children reference dictionary contains :',self.child_array)
+        print('The Parent reference dictionary contains :', self.parent_array)
+        print('The Children reference dictionary contains :', self.child_array)
         self.print_out()
         self.height()
         self.reverse_height()
         self.nodeval()
         return self.end_list, self.child_array, self.parent_array
 
-
     def get_depth(self, item):
+
         if item in self.depth_dict.keys():
             self.depth = self.depth_dict[item]
         else:
@@ -152,7 +151,68 @@ class SourceTree(object):
 
 
 
+    def dictionary(self, top=0):
+        current_head = self.nodevals[top]
+        node_name = str(current_head[0]).zfill(5) + '>>' + current_head[4] + '>>' + current_head[2].split('.')[-1]
+        a_dict = {}
+        a_dict[node_name] = {}
 
+        # if this node has no children, extract its information
+        if current_head[1] == []:
+            # if the information exists, use it, don't add empty
+            if current_head[5]:  # current_head[5] is the stored value of the node
+                a_dict[node_name] = current_head[5]
+            if a_dict[node_name]:
+                return a_dict
+            else:
+                return None
+
+        # if this node has children, add their dicts to this dict
+        children = current_head[1]
+        newdict = {}
+        for child in children:
+            child_dict =  self.dictionary(child)
+            child_name = str(self.nodevals[child][0]).zfill(5) + '>>' + self.nodevals[child][4] + '>>' + self.nodevals[child][2].split('.')[-1]
+            if child_dict:
+                child_d = child_dict[child_name]
+            else:
+                child_d = None
+            if child_dict:
+                a_dict[node_name][child_name] = child_d
+            newdict.update(a_dict)
+        if newdict:
+            return newdict
+        else:
+            return None
+
+    def ppr(self, dic):
+        dv = str(dic)
+        stri = ""
+        par_depth = 0
+        par_list = []
+        last_letter = ''
+
+        for letter in dv:
+            if letter == '{':
+                print(stri,'\n',end='')
+                stri = par_depth*'\t' + '{' + '\t'
+                par_depth += 1
+
+            elif letter == '}':
+                print(stri)
+                par_depth-=1
+                print(par_depth*'\t'+'}', end='')
+                stri = par_depth*'\t'
+
+            elif letter == ',':
+                if last_letter == '}':
+                    print(',')
+                else:
+                    print(stri + ',')
+                stri = par_depth * '\t'
+            else:
+                stri += letter
+            last_letter = letter
 
 
 def main():
@@ -160,9 +220,12 @@ def main():
     structure.mainrun()
     pp('max width is {0} node columns, with {1} rows'.format(max([val[1] for val in structure.layer_widths]), len(structure.layer_widths)))
     print('structure.nodevals=', structure.nodevals)
-    with open('filename.pickle', 'wb') as file_handle:
+    dic = structure.dictionary(0)
+    structure.ppr(dic)
+    nv = sorted(structure.nodevals, key=lambda x: x[2])
+    print(nv)
+    with open('filename2.pickle', 'wb') as file_handle:
         pickle.dump(structure.nodevals, file_handle)
-
 
 if __name__ == '__main__':
     main()
