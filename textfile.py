@@ -1,5 +1,5 @@
 text = """def evaluate(x):
-    x = 21
+    x, y = 21, 22
     if x >= 10 and x <= 20:
         x = x + 5.5
     else:

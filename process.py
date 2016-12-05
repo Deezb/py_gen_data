@@ -1,37 +1,38 @@
 import pickle
-from PLD2 import PLD
-
+# from PLD2 import PLD
+from pprint import pprint as pp
 with open('filename.pickle', 'rb') as file_handle:
     nodevalues = pickle.load(file_handle)
 
 
-def dicty(top = 0 ):
-    currentHead = nodevalues[top]
-    node_name = currentHead[2].split('.')[-1]
+def dicty(top=0):
+    current_head = nodevalues[top]
+    node_name = current_head[4]+'>>'+current_head[2].split('.')[-1]
     a_dict = {}
-    a_dict[top] = {}
+    a_dict[node_name] = {}
 
     # if this node has no children, extract its information
-    if currentHead[1] == []:
-        #if the information exists, use it, don't add empty
-        if currentHead[4] and currentHead:
-            a_dict[top][node_name] = currentHead[4]
-        if a_dict[top]:
+    if current_head[1] == []:
+        # if the information exists, use it, don't add empty
+        if current_head[5]:  #current_head[5] is the stored value of the node
+            a_dict[node_name] = current_head[5]
+        if a_dict[node_name]:
             return a_dict
         else:
             return None
 
     # if this node has children, add their dicts to this dict
-    children = currentHead[1]
+    children = current_head[1]
     newdict = {}
     for child in children:
         child_dict = dicty(child)
+        child_name = nodevalues[child][4]+'>>'+nodevalues[child][2].split('.')[-1]
         if child_dict:
-            child_d = child_dict[child]
+            child_d = child_dict[child_name]
         else:
             child_d = None
         if child_dict:
-            a_dict[top][child] = child_d
+            a_dict[node_name][child_name] = child_d
         newdict.update(a_dict)
     if newdict:
         return newdict
@@ -39,63 +40,42 @@ def dicty(top = 0 ):
         return None
 
 
+def get_function(ntype, values):
+
+    adict = dict()
+    bdict = dict()
+    if isinstance(values, dict):
+        for key, value in values.items():
+            if ntype in key:
+                bdict = get_function(ntype, value)
+            adict.update(bdict)
+    return adict
+
+
+def strip_function(values):
+
+    args = get_function('args', values)
+    body = get_function('body', values)
+    name = get_function('name', values)
+    decorator_list = get_function('decorator_list', values)
+    returns = get_function('returns', values)
+    print('args = ', args, body, name, decorator_list, returns)
+
+
+def process(tree):
+
+    function_declaration= [node for node in nodevalues if node[4] == "FunctionDef"]
+    for item in function_declaration:
+        strip_function(item)
+
+
 def main():
-    gosh = dicty(2)
-    #dicty2 = strip(dicty)
-    print(gosh)
-    #extract_function_defs()
-if __name__=='__main__':
+
+    view_dict = dicty(0)
+    pp(view_dict)
+    dicty2 = process(view_dict)
+    print(dicty2)
+
+
+if __name__ == '__main__':
     main()
-
-
-
-#
-#
-# def extract_function_defs():
-#     func_def_list = []
-#     symbol_dict = {}
-#     children = []
-#     for node in nodevalues:
-#         if node[3] == "<class '_ast.FunctionDef'>":
-#             func_def_list.append(node)
-#
-#     for funcnode in func_def_list:
-#         node_number, node_child_list, node_text_value, node_type, node_value = funcnode
-#         children = get_sub_list(funcnode)
-#     args = get_sub_node('args', children)
-
-
-# def get_PLD_sub_nodes(from_node):
-#     sub_nodes = {}
-#
-#     node_type = from_node[3]
-#     if '_ast' in node_type:
-#         node_name = node_type[13:-2]
-#         sub_nodes[from_node] = PLD[node_name]
-#     if sub_nodes:
-#         for node in sub_nodes:
-#             get_PLD_sub_nodes(node)
-#         return sub_nodes
-#     else:
-#         return
-#
-# def strip(dictyd):
-#     for key, value in dictyd.items:
-#         pass
-#
-## def get_sub_list(a_node):
-#     child_nodes = []
-#     child_node_numbers = a_node[1]
-#     for child_node in child_node_numbers:
-#         child_nodes.append(nodevalues[child_node])
-#     return child_nodes
-#
-#
-# def get_sub_node(typeinfo, from_node):
-#     child_nodes = get_sub_list(from_node)
-#     for node in child_nodes:
-#         if typeinfo == node[2].split('.')[-1]:
-#             return node
-#         return "Error Node {0} not found in {1}".format(typeinfo, from_node)
-
-
