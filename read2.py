@@ -147,7 +147,7 @@ class SourceTree(object):
                 valtype2 = str(valtype)[8:-2]
 
             self.nodevals.append((num, carn, valstr, valtype, valtype2, eval('self.'+item[1])))
-            print((num, carn, valstr, valtype, valtype2, eval('self.'+item[1])))
+            print((num, str(carn).replace(',','#'), valstr, valtype, valtype2, eval('self.'+item[1])))
 
 
 
@@ -185,7 +185,7 @@ class SourceTree(object):
         else:
             return None
 
-    def ppr(self, dic):
+    def ppdict(self, dic):
         dv = str(dic)
         stri = ""
         par_depth = 0
@@ -215,15 +215,36 @@ class SourceTree(object):
             last_letter = letter
 
 
+def  ppnodes(nodes):
+    newnodes = [ (node[0],str(node[1]).replace(',','#'), node[2:]) for node in nodes]
+    for nodel in newnodes:
+        print(nodel)
+
+
+def get_all_keys(dic):
+    keylist = []
+    for key,values in dic.items():
+        keylist.append(key)
+        if isinstance(values, dict):
+            keylist.extend(get_all_keys(values))
+    return keylist
+
+
 def main():
     structure = SourceTree()
     structure.mainrun()
     pp('max width is {0} node columns, with {1} rows'.format(max([val[1] for val in structure.layer_widths]), len(structure.layer_widths)))
     print('structure.nodevals=', structure.nodevals)
     dic = structure.dictionary(0)
-    structure.ppr(dic)
+    structure.ppdict(dic)
     nv = sorted(structure.nodevals, key=lambda x: x[2])
     print(nv)
+    ff= get_all_keys(dic)
+    ff = sorted(ff)
+    fg = [int(node.split('>>')[0]) for node in ff]
+    fh = [node for node in structure.nodevals if node[0] in fg]
+    print('fh', fh)
+    ppnodes(fh)
     with open('filename2.pickle', 'wb') as file_handle:
         pickle.dump(structure.nodevals, file_handle)
 
