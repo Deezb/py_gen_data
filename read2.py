@@ -10,6 +10,16 @@ def add_to_list(base, sep, bits):
 
 
 class SourceTree(object):
+    """
+        A SourceTree object is an Abstract Syntax Tree, when provided with a target source file or text it builds
+        multiple representations of the data for analysis
+
+        in the main class there is a variable "structure" initiated and this makes available
+        structure.nodevals
+        structure.dictionary(nodenumber) where nodenumber is the root number of the tree section you want to extract
+        there is also a parent_array, child_array and depth_dict, which might be useful for creating a graphical
+        analysis of the tree structure.
+    """
 
     def __init__(self):
         from textfile import text
@@ -54,6 +64,15 @@ class SourceTree(object):
         return self.parent_array[number]
 
     def get_children_of(self, item):
+        """
+        recursive breadth first search from a tree node
+        if there are children it sends a call to this function out for each child
+        it receives back the child list from each child.
+        then it returns its structure to its parent
+        :param item:
+        :return: list of all the child nodes of this node
+        """
+
         (count, parent_full_name) = item
         child_list = [(count, parent_full_name)]
         print('starting analysis of ', parent_full_name)
@@ -81,7 +100,13 @@ class SourceTree(object):
 
 
     def print_out(self):
+        """
+        this function just prints the end_list list
+        the end_list contains a set of tuples, the number of every node in the tree and it full structure path.
+        example   (6, 'tree.body[0].body')
 
+        this function just prints the number, path and value of every node
+        """
         for row in sorted(self.end_list):
             rowlen = len(str(row[1]))
             print(row[0], ' ' * (60 - rowlen), row[1], ' ', eval('self.'+row[1]))
@@ -186,6 +211,11 @@ class SourceTree(object):
             return None
 
     def ppdict(self, dic):
+        """
+        pretty print a nested dictionary structure
+        :param dic:
+        :return:
+        """
         dv = str(dic)
         stri = ""
         par_depth = 0
@@ -222,6 +252,11 @@ def  ppnodes(nodes):
 
 
 def get_all_keys(dic):
+    """
+    function to extract a list of all subdictionaries from a given dictionary
+    :param dic:
+    :return:
+    """
     keylist = []
     for key,values in dic.items():
         keylist.append(key)
